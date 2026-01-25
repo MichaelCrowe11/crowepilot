@@ -1,5 +1,6 @@
 import type { CommandModule } from "yargs"
 import chalk from "chalk"
+import inquirer from "inquirer"
 import fs from "fs/promises"
 import path from "path"
 import {
@@ -34,6 +35,7 @@ const ACTIONS = [
   "stop",
   "status",
   "config",
+  "setup",
 ] as const
 
 type Action = (typeof ACTIONS)[number]
@@ -69,6 +71,11 @@ function parseValue(raw: string) {
   } catch {
     return raw
   }
+}
+
+function toNumber(value: unknown, fallback: number) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : fallback
 }
 
 async function writePidFile() {
@@ -143,6 +150,83 @@ export const custodianCommand: CommandModule = {
     const prompt = args.prompt?.join(" ")
 
     switch (action) {
+      case "setup": {
+        const { config } = await loadCustodianConfig({ repoRoot, scope })
+        const defaultRepo = repoRoot || config.repoRoot || process.cwd()
+        const targetScope = scope === "merged" ? "local" : scope
+
+        const answers = await inquirer.prompt([
+          {
+            type: "input",
+            name: "repoRoot",
+            message: "Repository root",
+            default: defaultRepo,
+          },
+          {
+            type: "input",
+            name: "model",
+            message: "Ollama model",
+            default: config.model,
+          },
+          {
+            type: "number",
+            name: "port",
+            message: "Custodian port",
+            default: config.port,
+          },
+          {
+            type: "confirm",
+            name: "autostart",
+            message: "Autostart custodian with CrowePilot?",
+            default: config.autostart,
+          },
+          {
+            type: "input",
+            name: "ollamaBaseUrl",
+            message: "Ollama base URL",
+            default: config.ollamaBaseUrl,
+          },
+          {
+            type: "input",
+            name: "systemPrompt",
+            message: "System prompt",
+            default: config.systemPrompt,
+          },
+          {
+            type: "number",
+            name: "contextMaxFiles",
+            message: "Max files for context",
+            default: config.contextMaxFiles,
+          },
+          {
+            type: "number",
+            name: "contextMaxChars",
+            message: "Max chars for context",
+            default: config.contextMaxChars,
+          },
+        ])
+
+        const normalized = {
+          model: answers.model,
+          port: toNumber(answers.port, config.port),
+          autostart: Boolean(answers.autostart),
+          ollamaBaseUrl: answers.ollamaBaseUrl,
+          systemPrompt: answers.systemPrompt,
+          contextMaxFiles: toNumber(answers.contextMaxFiles, config.contextMaxFiles),
+          contextMaxChars: toNumber(answers.contextMaxChars, config.contextMaxChars),
+        }
+
+        const targetPath = await writeCustodianConfig({
+          repoRoot: answers.repoRoot,
+          scope: targetScope,
+          config: normalized as unknown as Record<string, unknown>,
+        })
+
+        console.log(chalk.green("✓"), "Custodian config updated")
+        console.log(chalk.dim(targetPath))
+        return
+      }
+
       case "run": {
         const { config } = await loadCustodianConfig({ repoRoot, scope })
         const port = args.port ?? config.port

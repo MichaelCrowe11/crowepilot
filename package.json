@@ -18,7 +18,10 @@
     "test:smoke": "node ./scripts/smoke-custodian.mjs",
     "release:patch": "node ./scripts/release.mjs patch",
     "release:minor": "node ./scripts/release.mjs minor",
-    "release:major": "node ./scripts/release.mjs major"
+    "release:major": "node ./scripts/release.mjs major",
+    "hooks:install": "node ./scripts/install-hooks.mjs",
+    "hooks:uninstall": "git config --unset core.hooksPath || true",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "yargs": "^17.7.2",
@@ -36,7 +39,8 @@
     "@eslint/js": "^9.20.0",
     "typescript-eslint": "^8.23.0",
     "prettier": "^3.4.2",
-    "globals": "^15.14.0"
+    "globals": "^15.14.0",
+    "@types/inquirer": "^9.0.7"
   },
   "engines": {
     "node": ">=18"
@@ -54,5 +58,24 @@
     "cli",
     "opencode",
     "crowelogic"
-  ]
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/crowelogic/crowepilot",
+  "bugs": {
+    "url": "https://github.com/crowelogic/crowepilot/issues"
+  }
 }

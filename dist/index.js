@@ -25,7 +25,7 @@ import {
   setCustodianConfigValue,
   stopCustodianRemote,
   writeCustodianConfig
-} from "./chunk-GTOKJRBK.js";
+} from "./chunk-TQWFWFXZ.js";
 
 // src/index.ts
 import yargs from "yargs";
@@ -126,7 +126,11 @@ agent: build
 Run the test suite with coverage reporting. Analyze any failures and suggest fixes.
 `;
     await fs.writeFile(path.join(configDir, "commands", "test.md"), exampleCommand);
-    console.log(chalk.green("\u2713"), "Created example command", chalk.dim(".opencode/commands/test.md"));
+    console.log(
+      chalk.green("\u2713"),
+      "Created example command",
+      chalk.dim(".opencode/commands/test.md")
+    );
     const gitignorePath = path.join(cwd, ".gitignore");
     const gitignoreExists = await fs.access(gitignorePath).then(() => true).catch(() => false);
     if (gitignoreExists) {
@@ -183,7 +187,12 @@ var configCommand = {
     default: false
   }),
   handler: async (argv) => {
-    const { action, key, value, global: useGlobal } = argv;
+    const {
+      action,
+      key,
+      value,
+      global: useGlobal
+    } = argv;
     const configPath = useGlobal ? GLOBAL_CONFIG_FILE : path2.join(process.cwd(), OPENCODE_CONFIG_DIR, OPENCODE_CONFIG_FILE);
     switch (action) {
       case "path": {
@@ -298,6 +307,7 @@ var configCommand = {
 
 // src/commands/custodian.ts
 import chalk3 from "chalk";
+import inquirer from "inquirer";
 import fs4 from "fs/promises";
 import path4 from "path";
 
@@ -482,7 +492,8 @@ var ACTIONS = [
   "start",
   "stop",
   "status",
-  "config"
+  "config",
+  "setup"
 ];
 async function fileExists2(filePath) {
   try {
@@ -498,6 +509,10 @@ function parseValue(raw) {
   } catch {
     return raw;
   }
+}
+function toNumber(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 async function writePidFile() {
   await fs4.mkdir(path4.dirname(CUSTODIAN_PID_FILE), { recursive: true });
@@ -556,6 +571,78 @@ var custodianCommand = {
     const scope = args.scope || "merged";
     const prompt = args.prompt?.join(" ");
     switch (action) {
+      case "setup": {
+        const { config } = await loadCustodianConfig({ repoRoot, scope });
+        const defaultRepo = repoRoot || config.repoRoot || process.cwd();
+        const targetScope = scope === "merged" ? "local" : scope;
+        const answers = await inquirer.prompt([
+          {
+            type: "input",
+            name: "repoRoot",
+            message: "Repository root",
+            default: defaultRepo
+          },
+          {
+            type: "input",
+            name: "model",
+            message: "Ollama model",
+            default: config.model
+          },
+          {
+            type: "number",
+            name: "port",
+            message: "Custodian port",
+            default: config.port
+          },
+          {
+            type: "confirm",
+            name: "autostart",
+            message: "Autostart custodian with CrowePilot?",
+            default: config.autostart
+          },
+          {
+            type: "input",
+            name: "ollamaBaseUrl",
+            message: "Ollama base URL",
+            default: config.ollamaBaseUrl
+          },
+          {
+            type: "input",
+            name: "systemPrompt",
+            message: "System prompt",
+            default: config.systemPrompt
+          },
+          {
+            type: "number",
+            name: "contextMaxFiles",
+            message: "Max files for context",
+            default: config.contextMaxFiles
+          },
+          {
+            type: "number",
+            name: "contextMaxChars",
+            message: "Max chars for context",
+            default: config.contextMaxChars
+          }
+        ]);
+        const normalized = {
+          model: answers.model,
+          port: toNumber(answers.port, config.port),
+          autostart: Boolean(answers.autostart),
+          ollamaBaseUrl: answers.ollamaBaseUrl,
+          systemPrompt: answers.systemPrompt,
+          contextMaxFiles: toNumber(answers.contextMaxFiles, config.contextMaxFiles),
+          contextMaxChars: toNumber(answers.contextMaxChars, config.contextMaxChars)
+        };
+        const targetPath = await writeCustodianConfig({
+          repoRoot: answers.repoRoot,
+          scope: targetScope,
+          config: normalized
+        });
+        console.log(chalk3.green("\u2713"), "Custodian config updated");
+        console.log(chalk3.dim(targetPath));
+        return;
+      }
       case "run": {
         const { config } = await loadCustodianConfig({ repoRoot, scope });
         const port = args.port ?? config.port;
@@ -775,7 +862,7 @@ var cli = yargs(hideBin(process.argv)).scriptName("crowepilot").usage(BANNER + "
   }),
   async (argv) => {
     const prompt = argv.prompt?.join(" ");
-    const { startSession } = await import("./chat-HCF2DQKK.js");
+    const { startSession } = await import("./chat-UNLBPJQC.js");
     await startSession({
       prompt,
       model: argv.model,

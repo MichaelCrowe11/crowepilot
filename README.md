@@ -1,5 +1,9 @@
 # CrowePilot
 
+[![CI](https://github.com/MichaelCrowe11/crowepilot/actions/workflows/ci.yml/badge.svg)](https://github.com/MichaelCrowe11/crowepilot/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/crowepilot)](https://www.npmjs.com/package/crowepilot)
+[![license](https://img.shields.io/npm/l/crowepilot)](LICENSE)
+
 AI-powered coding assistant and CLI for CroweLogic, now with an embedded Ollama custodian/architect.
 
 ## Quick start
@@ -55,6 +59,12 @@ Local config: `.crowepilot/custodian.json`
 ./bin/crowepilot.js custodian config set port 5123
 ```
 
+### Guided setup (wizard)
+
+```bash
+./bin/crowepilot.js custodian setup
+```
+
 ### Requirements
 
 - Ollama running locally (`ollama serve`)
@@ -75,6 +85,14 @@ npm run format:check
 npm run test:smoke
 ```
 
+## Git Hooks
+
+```bash
+npm run hooks:install
+```
+
+This installs a pre-commit hook that runs lint, format checks, and typecheck.
+
 ## Release
 
 ```bash
@@ -84,3 +102,15 @@ npm run release:major
 ```
 
 This updates `package.json`/`package-lock.json`, prepends `CHANGELOG.md`, commits, and tags the release.
+
+Push tags to trigger the GitHub Release workflow:
+
+```bash
+git push --follow-tags
+```
+
+## Publish
+
+```bash
+npm publish
+```
