@@ -2,11 +2,7 @@ import fs from "fs/promises"
 import os from "os"
 import path from "path"
 import { spawn } from "child_process"
-import {
-  CUSTODIAN_LABEL,
-  CUSTODIAN_LOG_DIR,
-  CUSTODIAN_PID_FILE,
-} from "./constants"
+import { CUSTODIAN_LABEL, CUSTODIAN_LOG_DIR, CUSTODIAN_PID_FILE } from "./constants"
 
 function getPlistPath() {
   return path.join(os.homedir(), "Library", "LaunchAgents", `${CUSTODIAN_LABEL}.plist`)

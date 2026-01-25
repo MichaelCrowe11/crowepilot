@@ -82,7 +82,9 @@ function summarizePackageJson(raw: string) {
       name: parsed.name,
       version: parsed.version,
       scripts: parsed.scripts ? Object.keys(parsed.scripts as Record<string, string>) : undefined,
-      dependencies: parsed.dependencies ? Object.keys(parsed.dependencies as Record<string, string>) : undefined,
+      dependencies: parsed.dependencies
+        ? Object.keys(parsed.dependencies as Record<string, string>)
+        : undefined,
       devDependencies: parsed.devDependencies
         ? Object.keys(parsed.devDependencies as Record<string, string>)
         : undefined,

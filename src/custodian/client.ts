@@ -77,11 +77,15 @@ export async function runCustodianRemote(options: ClientRunOptions & { port: num
     includeContext: options.includeContext,
   }
 
-  const data = await fetchJson(`${getBaseUrl(options.port)}/run`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  }, 60000)
+  const data = await fetchJson(
+    `${getBaseUrl(options.port)}/run`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+    60000
+  )
 
   if (!data?.response) {
     throw new Error("Custodian service did not return a response")
@@ -97,7 +101,8 @@ export async function ensureCustodianRunning(options: EnsureOptions = {}) {
   if (await isCustodianHealthy(port)) return true
 
   const entryCandidate = process.argv[1]
-  const entryPath = entryCandidate && entryCandidate.endsWith(".js") ? path.resolve(entryCandidate) : null
+  const entryPath =
+    entryCandidate && entryCandidate.endsWith(".js") ? path.resolve(entryCandidate) : null
   const nodePath = entryPath ? process.execPath : "crowepilot"
   const args = entryPath
     ? [entryPath, "custodian", "serve", "--daemon", "--port", String(port)]

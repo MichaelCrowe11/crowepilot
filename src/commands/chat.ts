@@ -81,7 +81,8 @@ export async function startSession(options: ChatOptions = {}) {
       CROWEPILOT_CUSTODIAN_URL: custodianConfig
         ? `http://127.0.0.1:${custodianConfig.config.port}`
         : process.env.CROWEPILOT_CUSTODIAN_URL,
-      CROWEPILOT_CUSTODIAN_MODEL: custodianConfig?.config.model || process.env.CROWEPILOT_CUSTODIAN_MODEL,
+      CROWEPILOT_CUSTODIAN_MODEL:
+        custodianConfig?.config.model || process.env.CROWEPILOT_CUSTODIAN_MODEL,
     },
   })
 
@@ -113,7 +114,7 @@ async function checkOpenCodeInstalled(): Promise<boolean> {
 async function installOpenCode(): Promise<void> {
   console.log(chalk.cyan("Installing OpenCode..."))
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const proc = spawn("bash", ["-c", "curl -fsSL https://opencode.ai/install | bash"], {
       stdio: "inherit",
     })

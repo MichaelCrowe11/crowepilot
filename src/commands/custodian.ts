@@ -179,6 +179,7 @@ export const custodianCommand: CommandModule = {
           console.error(chalk.dim("Ensure Ollama is running (try: `ollama serve`)."))
           process.exit(1)
         }
+        break
       }
 
       case "serve": {
@@ -373,6 +374,7 @@ export const custodianCommand: CommandModule = {
 
         console.error(chalk.red(`Unknown config action: ${subAction}`))
         process.exit(1)
+        break
       }
 
       default:

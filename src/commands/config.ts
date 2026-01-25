@@ -10,7 +10,10 @@ const GLOBAL_CONFIG_DIR = path.join(os.homedir(), ".config", "opencode")
 const GLOBAL_CONFIG_FILE = path.join(GLOBAL_CONFIG_DIR, "opencode.json")
 
 async function fileExists(filePath: string): Promise<boolean> {
-  return fs.access(filePath).then(() => true).catch(() => false)
+  return fs
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false)
 }
 
 async function readJsonFile(filePath: string): Promise<Record<string, unknown>> {
@@ -43,7 +46,12 @@ export const configCommand: CommandModule = {
         default: false,
       }),
   handler: async (argv) => {
-    const { action, key, value, global: useGlobal } = argv as unknown as {
+    const {
+      action,
+      key,
+      value,
+      global: useGlobal,
+    } = argv as unknown as {
       action: string
       key?: string
       value?: string

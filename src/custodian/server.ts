@@ -70,10 +70,9 @@ export async function startCustodianServer(options: ServerOptions = {}) {
             })
           : ""
 
-        const prompt = payload.prompt?.trim() || "Provide an architectural review and optimization plan."
-        const composedPrompt = context
-          ? `Context:\n${context}\n\nRequest:\n${prompt}`
-          : prompt
+        const prompt =
+          payload.prompt?.trim() || "Provide an architectural review and optimization plan."
+        const composedPrompt = context ? `Context:\n${context}\n\nRequest:\n${prompt}` : prompt
 
         const response = await generateWithOllama({
           baseUrl: config.ollamaBaseUrl,

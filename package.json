@@ -10,7 +10,15 @@
     "dev": "tsx src/index.ts",
     "build": "tsup src/index.ts --format esm --dts --outDir dist",
     "typecheck": "tsc --noEmit",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "test:smoke": "node ./scripts/smoke-custodian.mjs",
+    "release:patch": "node ./scripts/release.mjs patch",
+    "release:minor": "node ./scripts/release.mjs minor",
+    "release:major": "node ./scripts/release.mjs major"
   },
   "dependencies": {
     "yargs": "^17.7.2",
@@ -23,7 +31,12 @@
     "@types/yargs": "^17.0.32",
     "typescript": "^5.4.0",
     "tsx": "^4.7.0",
-    "tsup": "^8.0.0"
+    "tsup": "^8.0.0",
+    "eslint": "^9.20.0",
+    "@eslint/js": "^9.20.0",
+    "typescript-eslint": "^8.23.0",
+    "prettier": "^3.4.2",
+    "globals": "^15.14.0"
   },
   "engines": {
     "node": ">=18"

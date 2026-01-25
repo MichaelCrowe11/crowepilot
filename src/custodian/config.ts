@@ -79,7 +79,8 @@ export async function writeCustodianConfig(options: {
 }) {
   const repoRoot = options.repoRoot || process.cwd()
   const scope = options.scope || "local"
-  const targetPath = scope === "global" ? CUSTODIAN_CONFIG_FILE_GLOBAL : getLocalConfigPath(repoRoot)
+  const targetPath =
+    scope === "global" ? CUSTODIAN_CONFIG_FILE_GLOBAL : getLocalConfigPath(repoRoot)
   const targetDir = path.dirname(targetPath)
 
   const sanitized = { ...options.config }

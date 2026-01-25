@@ -25,7 +25,7 @@ import {
   setCustodianConfigValue,
   stopCustodianRemote,
   writeCustodianConfig
-} from "./chunk-3IEABKRD.js";
+} from "./chunk-GTOKJRBK.js";
 
 // src/index.ts
 import yargs from "yargs";
@@ -589,6 +589,7 @@ var custodianCommand = {
           console.error(chalk3.dim("Ensure Ollama is running (try: `ollama serve`)."));
           process.exit(1);
         }
+        break;
       }
       case "serve": {
         const { config } = await loadCustodianConfig({ repoRoot, scope });
@@ -754,6 +755,7 @@ var custodianCommand = {
         }
         console.error(chalk3.red(`Unknown config action: ${subAction}`));
         process.exit(1);
+        break;
       }
       default:
         console.error(chalk3.red(`Unknown action: ${action}`));
@@ -773,7 +775,7 @@ var cli = yargs(hideBin(process.argv)).scriptName("crowepilot").usage(BANNER + "
   }),
   async (argv) => {
     const prompt = argv.prompt?.join(" ");
-    const { startSession } = await import("./chat-ZQ7KSCNM.js");
+    const { startSession } = await import("./chat-HCF2DQKK.js");
     await startSession({
       prompt,
       model: argv.model,

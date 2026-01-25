@@ -2,7 +2,12 @@ import type { CommandModule } from "yargs"
 import chalk from "chalk"
 import path from "path"
 import fs from "fs/promises"
-import { OPENCODE_CONFIG_DIR, OPENCODE_CONFIG_FILE, DEFAULT_MODEL, DEFAULT_AGENT } from "../config/constants"
+import {
+  OPENCODE_CONFIG_DIR,
+  OPENCODE_CONFIG_FILE,
+  DEFAULT_MODEL,
+  DEFAULT_AGENT,
+} from "../config/constants"
 import {
   CUSTODIAN_DEFAULT_MODEL,
   CUSTODIAN_DEFAULT_PORT,
@@ -38,12 +43,6 @@ const DEFAULT_CUSTODIAN_CONFIG = {
   contextMaxChars: 6000,
 }
 
-const GITIGNORE_CONTENT = `# CrowePilot
-node_modules/
-.env
-*.log
-`
-
 export const initCommand: CommandModule = {
   command: "init",
   describe: "Initialize CrowePilot in current directory",
@@ -68,7 +67,10 @@ export const initCommand: CommandModule = {
     console.log(chalk.cyan("\nInitializing CrowePilot...\n"))
 
     // Check if already initialized
-    const configExists = await fs.access(configFile).then(() => true).catch(() => false)
+    const configExists = await fs
+      .access(configFile)
+      .then(() => true)
+      .catch(() => false)
     if (configExists && !argv.force) {
       console.log(chalk.yellow("CrowePilot already initialized in this directory."))
       console.log(chalk.dim("Use --force to overwrite existing configuration."))
@@ -132,11 +134,18 @@ Run the test suite with coverage reporting. Analyze any failures and suggest fix
 `
 
     await fs.writeFile(path.join(configDir, "commands", "test.md"), exampleCommand)
-    console.log(chalk.green("✓"), "Created example command", chalk.dim(".opencode/commands/test.md"))
+    console.log(
+      chalk.green("✓"),
+      "Created example command",
+      chalk.dim(".opencode/commands/test.md")
+    )
 
     // Update .gitignore if it exists
     const gitignorePath = path.join(cwd, ".gitignore")
-    const gitignoreExists = await fs.access(gitignorePath).then(() => true).catch(() => false)
+    const gitignoreExists = await fs
+      .access(gitignorePath)
+      .then(() => true)
+      .catch(() => false)
     if (gitignoreExists) {
       const content = await fs.readFile(gitignorePath, "utf-8")
       if (!content.includes(".opencode")) {
