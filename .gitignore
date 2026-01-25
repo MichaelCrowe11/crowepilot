@@ -1,0 +1,5 @@
+node_modules/
+.opencode/
+.crowepilot/
+.env
+*.log
