@@ -26,7 +26,7 @@ import {
   setCustodianConfigValue,
   stopCustodianRemote,
   writeCustodianConfig
-} from "./chunk-ZDJC7QCH.js";
+} from "./chunk-5MU3WOIF.js";
 
 // src/index.ts
 import yargs from "yargs";
@@ -351,6 +351,7 @@ async function startCustodianServer(options = {}) {
         const payload = await readJsonBody(req);
         const repoRoot = payload.repoRoot || options.repoRoot || config.repoRoot;
         const model = payload.model || options.model || config.model;
+        const toolModel = payload.toolModel || options.toolModel || config.toolModel;
         const systemPrompt = payload.systemPrompt || options.systemPrompt || config.systemPrompt;
         const includeContext = payload.includeContext ?? options.includeContext ?? true;
         const useTools = payload.useTools ?? options.useTools ?? false;
@@ -370,6 +371,7 @@ ${prompt}` : prompt;
         const response = useTools ? await runWithTools({
           baseUrl: config.ollamaBaseUrl,
           model,
+          toolModel,
           prompt: composedPrompt,
           system: systemPrompt,
           repoRoot,
@@ -549,6 +551,9 @@ var custodianCommand = {
   }).option("model", {
     type: "string",
     description: "Ollama model to use"
+  }).option("tool-model", {
+    type: "string",
+    description: "Ollama model to use when tools are enabled"
   }).option("port", {
     type: "number",
     description: "Custodian service port"
@@ -623,6 +628,12 @@ var custodianCommand = {
             default: config.model
           },
           {
+            type: "input",
+            name: "toolModel",
+            message: "Tool model (for tool runner)",
+            default: config.toolModel
+          },
+          {
             type: "number",
             name: "port",
             message: "Custodian port",
@@ -661,6 +672,7 @@ var custodianCommand = {
         ]);
         const normalized = {
           model: answers.model,
+          toolModel: answers.toolModel,
           port: toNumber(answers.port, config.port),
           autostart: Boolean(answers.autostart),
           ollamaBaseUrl: answers.ollamaBaseUrl,
@@ -681,6 +693,7 @@ var custodianCommand = {
         const { config } = await loadCustodianConfig({ repoRoot, scope });
         const port = args.port ?? config.port;
         const model = args.model ?? config.model;
+        const toolModel = args.toolModel ?? config.toolModel;
         const systemPrompt = args.system ?? config.systemPrompt;
         const includeContext = args.context ?? true;
         const useTools = args.tools ?? false;
@@ -696,6 +709,7 @@ var custodianCommand = {
               prompt,
               repoRoot: repoRoot || config.repoRoot,
               model,
+              toolModel,
               systemPrompt,
               includeContext,
               useTools,
@@ -708,6 +722,7 @@ var custodianCommand = {
               prompt,
               repoRoot: repoRoot || config.repoRoot,
               model,
+              toolModel,
               systemPrompt,
               includeContext,
               useTools,
@@ -729,6 +744,7 @@ var custodianCommand = {
         const { config } = await loadCustodianConfig({ repoRoot, scope });
         const port = args.port ?? config.port;
         const model = args.model ?? config.model;
+        const toolModel = args.toolModel ?? config.toolModel;
         const systemPrompt = args.system ?? config.systemPrompt;
         const includeContext = args.context ?? true;
         const useTools = args.tools ?? false;
@@ -740,6 +756,7 @@ var custodianCommand = {
           repoRoot: repoRoot || config.repoRoot,
           port,
           model,
+          toolModel,
           systemPrompt,
           includeContext,
           useTools,
@@ -918,7 +935,7 @@ var cli = yargs(hideBin(process.argv)).scriptName("crowepilot").usage(BANNER + "
   }),
   async (argv) => {
     const prompt = argv.prompt?.join(" ");
-    const { startSession } = await import("./chat-5DXC3D6Z.js");
+    const { startSession } = await import("./chat-RHSGGDWT.js");
     await startSession({
       prompt,
       model: argv.model,

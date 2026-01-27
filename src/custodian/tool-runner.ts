@@ -18,11 +18,13 @@ interface ToolCall {
 export interface ToolRunnerOptions {
   baseUrl: string
   model: string
+  toolModel?: string
   prompt: string
   system?: string
   repoRoot: string
   temperature?: number
   maxSteps?: number
+  maxToolRetries?: number
   allowShell?: boolean
   allowDelete?: boolean
   allowNetwork?: boolean
@@ -82,10 +84,20 @@ function buildToolInstructions(options: {
   }
 
   lines.push(
+    "When tools are enabled, your first response must be tool calls only (no prose).",
+    "If you need data from the repo, call tools before answering.",
     "Put each tool call on its own line.",
     "Do not wrap tool calls in code fences.",
     "After tool results are provided, continue with a normal answer.",
     "Use relative paths under the repo root; never use absolute paths."
+  )
+
+  lines.push(
+    "Examples:",
+    'User: "List files in repo root"',
+    'Assistant: <tool name="list_dir">{"path":"."}</tool>',
+    'User: "Find TODOs in TypeScript files"',
+    'Assistant: <tool name="search_text">{"path":".","pattern":"TODO","globs":["**/*.ts"],"literal":true}</tool>'
   )
 
   return lines.join("\n")
@@ -546,20 +558,40 @@ export async function runWithTools(options: ToolRunnerOptions) {
   messages.push({ role: "user", content: options.prompt })
 
   const maxSteps = options.maxSteps ?? 8
+  const maxToolRetries = options.maxToolRetries ?? 2
+  let toolRetries = 0
+  let toolUsed = false
+  const toolModel = options.toolModel || options.model
 
   for (let step = 0; step < maxSteps; step += 1) {
     const assistantContent = await chatWithOllama({
       baseUrl: options.baseUrl,
-      model: options.model,
+      model: toolModel,
       messages,
       temperature: options.temperature,
     })
 
     const toolCalls = parseToolCalls(assistantContent)
     if (toolCalls.length === 0) {
+      if (!toolUsed && toolRetries < maxToolRetries) {
+        toolRetries += 1
+        messages.push({ role: "assistant", content: assistantContent })
+        messages.push({
+          role: "user",
+          content:
+            "You did not call any tools. You must call at least one tool now. Respond ONLY with tool tags.",
+        })
+        continue
+      }
+      if (!toolUsed) {
+        throw new Error(
+          "Tool runner required tool calls but the model did not comply. Try setting --tool-model to a tool-following model."
+        )
+      }
       return assistantContent
     }
 
+    toolUsed = true
     messages.push({ role: "assistant", content: assistantContent })
 
     for (const call of toolCalls) {

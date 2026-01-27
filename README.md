@@ -39,6 +39,10 @@ Tool permissions:
 - `--allow-network`: enable HTTP fetch tool
 - `--allow-all-tools`: enable all of the above
 
+Tool model:
+
+- `--tool-model`: override the model used when tools are enabled (default: `gpt-oss:latest`)
+
 ### Start a foreground service
 
 ```bash

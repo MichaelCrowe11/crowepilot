@@ -7,6 +7,7 @@ import { runWithTools } from "./tool-runner"
 interface ServerOptions {
   repoRoot?: string
   model?: string
+  toolModel?: string
   port?: number
   systemPrompt?: string
   includeContext?: boolean
@@ -20,6 +21,7 @@ interface RunPayload {
   prompt?: string
   repoRoot?: string
   model?: string
+  toolModel?: string
   systemPrompt?: string
   includeContext?: boolean
   useTools?: boolean
@@ -69,6 +71,7 @@ export async function startCustodianServer(options: ServerOptions = {}) {
         const payload = (await readJsonBody(req)) as RunPayload
         const repoRoot = payload.repoRoot || options.repoRoot || config.repoRoot
         const model = payload.model || options.model || config.model
+        const toolModel = payload.toolModel || options.toolModel || config.toolModel
         const systemPrompt = payload.systemPrompt || options.systemPrompt || config.systemPrompt
         const includeContext = payload.includeContext ?? options.includeContext ?? true
         const useTools = payload.useTools ?? options.useTools ?? false
@@ -91,6 +94,7 @@ export async function startCustodianServer(options: ServerOptions = {}) {
           ? await runWithTools({
               baseUrl: config.ollamaBaseUrl,
               model,
+              toolModel,
               prompt: composedPrompt,
               system: systemPrompt,
               repoRoot,

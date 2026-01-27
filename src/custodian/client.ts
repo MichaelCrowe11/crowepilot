@@ -9,6 +9,7 @@ interface ClientRunOptions {
   prompt?: string
   repoRoot?: string
   model?: string
+  toolModel?: string
   systemPrompt?: string
   includeContext?: boolean
   useTools?: boolean
@@ -52,6 +53,7 @@ export async function runCustodianRequest(options: ClientRunOptions) {
   const { config } = await loadCustodianConfig({ repoRoot: options.repoRoot })
   const repoRoot = options.repoRoot || config.repoRoot
   const model = options.model || config.model
+  const toolModel = options.toolModel || config.toolModel
   const systemPrompt = options.systemPrompt || config.systemPrompt
   const includeContext = options.includeContext ?? true
   const useTools = options.useTools ?? false
@@ -73,6 +75,7 @@ export async function runCustodianRequest(options: ClientRunOptions) {
     return runWithTools({
       baseUrl: config.ollamaBaseUrl,
       model,
+      toolModel,
       prompt: composedPrompt,
       system: systemPrompt,
       repoRoot,
@@ -95,6 +98,7 @@ export async function runCustodianRemote(options: ClientRunOptions & { port: num
     prompt: options.prompt,
     repoRoot: options.repoRoot,
     model: options.model,
+    toolModel: options.toolModel,
     systemPrompt: options.systemPrompt,
     includeContext: options.includeContext,
     useTools: options.useTools,

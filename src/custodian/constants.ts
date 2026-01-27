@@ -2,6 +2,7 @@ import os from "os"
 import path from "path"
 
 export const CUSTODIAN_DEFAULT_MODEL = "Mcrowe1210/DeepParallel"
+export const CUSTODIAN_TOOL_MODEL = "gpt-oss:latest"
 export const CUSTODIAN_DEFAULT_PORT = 5123
 export const CUSTODIAN_OLLAMA_URL = "http://127.0.0.1:11434"
 

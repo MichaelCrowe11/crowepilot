@@ -7,10 +7,12 @@ import {
   CUSTODIAN_DEFAULT_PORT,
   CUSTODIAN_OLLAMA_URL,
   CUSTODIAN_SYSTEM_PROMPT,
+  CUSTODIAN_TOOL_MODEL,
 } from "./constants"
 
 export interface CustodianConfig {
   model: string
+  toolModel: string
   port: number
   repoRoot: string
   autostart: boolean
@@ -24,6 +26,7 @@ export type ConfigScope = "merged" | "global" | "local"
 
 const DEFAULTS: Omit<CustodianConfig, "repoRoot"> = {
   model: CUSTODIAN_DEFAULT_MODEL,
+  toolModel: CUSTODIAN_TOOL_MODEL,
   port: CUSTODIAN_DEFAULT_PORT,
   autostart: true,
   systemPrompt: CUSTODIAN_SYSTEM_PROMPT,

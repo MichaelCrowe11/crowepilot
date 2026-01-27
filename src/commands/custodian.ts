@@ -46,6 +46,7 @@ interface CustodianArgs {
   action: Action
   prompt?: string[]
   model?: string
+  toolModel?: string
   port?: number
   repo?: string
   system?: string
@@ -110,6 +111,10 @@ export const custodianCommand: CommandModule = {
       .option("model", {
         type: "string",
         description: "Ollama model to use",
+      })
+      .option("tool-model", {
+        type: "string",
+        description: "Ollama model to use when tools are enabled",
       })
       .option("port", {
         type: "number",
@@ -199,6 +204,12 @@ export const custodianCommand: CommandModule = {
             default: config.model,
           },
           {
+            type: "input",
+            name: "toolModel",
+            message: "Tool model (for tool runner)",
+            default: config.toolModel,
+          },
+          {
             type: "number",
             name: "port",
             message: "Custodian port",
@@ -238,6 +249,7 @@ export const custodianCommand: CommandModule = {
 
         const normalized = {
           model: answers.model,
+          toolModel: answers.toolModel,
           port: toNumber(answers.port, config.port),
           autostart: Boolean(answers.autostart),
           ollamaBaseUrl: answers.ollamaBaseUrl,
@@ -261,6 +273,7 @@ export const custodianCommand: CommandModule = {
         const { config } = await loadCustodianConfig({ repoRoot, scope })
         const port = args.port ?? config.port
         const model = args.model ?? config.model
+        const toolModel = args.toolModel ?? config.toolModel
         const systemPrompt = args.system ?? config.systemPrompt
         const includeContext = args.context ?? true
         const useTools = args.tools ?? false
@@ -278,6 +291,7 @@ export const custodianCommand: CommandModule = {
               prompt,
               repoRoot: repoRoot || config.repoRoot,
               model,
+              toolModel,
               systemPrompt,
               includeContext,
               useTools,
@@ -290,6 +304,7 @@ export const custodianCommand: CommandModule = {
               prompt,
               repoRoot: repoRoot || config.repoRoot,
               model,
+              toolModel,
               systemPrompt,
               includeContext,
               useTools,
@@ -313,6 +328,7 @@ export const custodianCommand: CommandModule = {
         const { config } = await loadCustodianConfig({ repoRoot, scope })
         const port = args.port ?? config.port
         const model = args.model ?? config.model
+        const toolModel = args.toolModel ?? config.toolModel
         const systemPrompt = args.system ?? config.systemPrompt
         const includeContext = args.context ?? true
         const useTools = args.tools ?? false
@@ -325,6 +341,7 @@ export const custodianCommand: CommandModule = {
           repoRoot: repoRoot || config.repoRoot,
           port,
           model,
+          toolModel,
           systemPrompt,
           includeContext,
           useTools,
