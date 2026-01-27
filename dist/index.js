@@ -22,10 +22,11 @@ import {
   loadCustodianConfig,
   runCustodianRemote,
   runCustodianRequest,
+  runWithTools,
   setCustodianConfigValue,
   stopCustodianRemote,
   writeCustodianConfig
-} from "./chunk-TQWFWFXZ.js";
+} from "./chunk-ZDJC7QCH.js";
 
 // src/index.ts
 import yargs from "yargs";
@@ -352,6 +353,10 @@ async function startCustodianServer(options = {}) {
         const model = payload.model || options.model || config.model;
         const systemPrompt = payload.systemPrompt || options.systemPrompt || config.systemPrompt;
         const includeContext = payload.includeContext ?? options.includeContext ?? true;
+        const useTools = payload.useTools ?? options.useTools ?? false;
+        const allowShell = payload.allowShell ?? options.allowShell ?? false;
+        const allowDelete = payload.allowDelete ?? options.allowDelete ?? false;
+        const allowNetwork = payload.allowNetwork ?? options.allowNetwork ?? false;
         const context = includeContext ? await buildRepoContext(repoRoot, {
           maxFiles: config.contextMaxFiles,
           maxChars: config.contextMaxChars
@@ -362,7 +367,16 @@ ${context}
 
 Request:
 ${prompt}` : prompt;
-        const response = await generateWithOllama({
+        const response = useTools ? await runWithTools({
+          baseUrl: config.ollamaBaseUrl,
+          model,
+          prompt: composedPrompt,
+          system: systemPrompt,
+          repoRoot,
+          allowShell,
+          allowDelete,
+          allowNetwork
+        }) : await generateWithOllama({
           baseUrl: config.ollamaBaseUrl,
           model,
           prompt: composedPrompt,
@@ -552,6 +566,26 @@ var custodianCommand = {
     type: "boolean",
     description: "Run in daemon mode",
     default: false
+  }).option("tools", {
+    type: "boolean",
+    description: "Enable XML tool runner for the custodian",
+    default: false
+  }).option("allow-shell", {
+    type: "boolean",
+    description: "Allow shell tool execution when tool runner is enabled",
+    default: false
+  }).option("allow-delete", {
+    type: "boolean",
+    description: "Allow delete_path tool execution when tool runner is enabled",
+    default: false
+  }).option("allow-network", {
+    type: "boolean",
+    description: "Allow network tools (http_get) when tool runner is enabled",
+    default: false
+  }).option("allow-all-tools", {
+    type: "boolean",
+    description: "Enable all tool permissions (shell, delete, network)",
+    default: false
   }).option("scope", {
     type: "string",
     choices: ["merged", "global", "local"],
@@ -649,6 +683,11 @@ var custodianCommand = {
         const model = args.model ?? config.model;
         const systemPrompt = args.system ?? config.systemPrompt;
         const includeContext = args.context ?? true;
+        const useTools = args.tools ?? false;
+        const allowAllTools = args.allowAllTools ?? false;
+        const allowShell = allowAllTools || (args.allowShell ?? false);
+        const allowDelete = allowAllTools || (args.allowDelete ?? false);
+        const allowNetwork = allowAllTools || (args.allowNetwork ?? false);
         try {
           let response;
           if (await isCustodianHealthy(port)) {
@@ -658,7 +697,11 @@ var custodianCommand = {
               repoRoot: repoRoot || config.repoRoot,
               model,
               systemPrompt,
-              includeContext
+              includeContext,
+              useTools,
+              allowShell,
+              allowDelete,
+              allowNetwork
             });
           } else {
             response = await runCustodianRequest({
@@ -666,7 +709,11 @@ var custodianCommand = {
               repoRoot: repoRoot || config.repoRoot,
               model,
               systemPrompt,
-              includeContext
+              includeContext,
+              useTools,
+              allowShell,
+              allowDelete,
+              allowNetwork
             });
           }
           console.log(response);
@@ -684,12 +731,21 @@ var custodianCommand = {
         const model = args.model ?? config.model;
         const systemPrompt = args.system ?? config.systemPrompt;
         const includeContext = args.context ?? true;
+        const useTools = args.tools ?? false;
+        const allowAllTools = args.allowAllTools ?? false;
+        const allowShell = allowAllTools || (args.allowShell ?? false);
+        const allowDelete = allowAllTools || (args.allowDelete ?? false);
+        const allowNetwork = allowAllTools || (args.allowNetwork ?? false);
         const { server } = await startCustodianServer({
           repoRoot: repoRoot || config.repoRoot,
           port,
           model,
           systemPrompt,
-          includeContext
+          includeContext,
+          useTools,
+          allowShell,
+          allowDelete,
+          allowNetwork
         });
         if (args.daemon) {
           await writePidFile();
@@ -862,7 +918,7 @@ var cli = yargs(hideBin(process.argv)).scriptName("crowepilot").usage(BANNER + "
   }),
   async (argv) => {
     const prompt = argv.prompt?.join(" ");
-    const { startSession } = await import("./chat-UNLBPJQC.js");
+    const { startSession } = await import("./chat-5DXC3D6Z.js");
     await startSession({
       prompt,
       model: argv.model,

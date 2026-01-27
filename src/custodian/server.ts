@@ -2,6 +2,7 @@ import http from "http"
 import { buildRepoContext } from "./context"
 import { loadCustodianConfig } from "./config"
 import { generateWithOllama } from "./ollama"
+import { runWithTools } from "./tool-runner"
 
 interface ServerOptions {
   repoRoot?: string
@@ -9,6 +10,10 @@ interface ServerOptions {
   port?: number
   systemPrompt?: string
   includeContext?: boolean
+  useTools?: boolean
+  allowShell?: boolean
+  allowDelete?: boolean
+  allowNetwork?: boolean
 }
 
 interface RunPayload {
@@ -17,6 +22,10 @@ interface RunPayload {
   model?: string
   systemPrompt?: string
   includeContext?: boolean
+  useTools?: boolean
+  allowShell?: boolean
+  allowDelete?: boolean
+  allowNetwork?: boolean
 }
 
 async function readJsonBody(req: http.IncomingMessage) {
@@ -62,6 +71,10 @@ export async function startCustodianServer(options: ServerOptions = {}) {
         const model = payload.model || options.model || config.model
         const systemPrompt = payload.systemPrompt || options.systemPrompt || config.systemPrompt
         const includeContext = payload.includeContext ?? options.includeContext ?? true
+        const useTools = payload.useTools ?? options.useTools ?? false
+        const allowShell = payload.allowShell ?? options.allowShell ?? false
+        const allowDelete = payload.allowDelete ?? options.allowDelete ?? false
+        const allowNetwork = payload.allowNetwork ?? options.allowNetwork ?? false
 
         const context = includeContext
           ? await buildRepoContext(repoRoot, {
@@ -74,12 +87,23 @@ export async function startCustodianServer(options: ServerOptions = {}) {
           payload.prompt?.trim() || "Provide an architectural review and optimization plan."
         const composedPrompt = context ? `Context:\n${context}\n\nRequest:\n${prompt}` : prompt
 
-        const response = await generateWithOllama({
-          baseUrl: config.ollamaBaseUrl,
-          model,
-          prompt: composedPrompt,
-          system: systemPrompt,
-        })
+        const response = useTools
+          ? await runWithTools({
+              baseUrl: config.ollamaBaseUrl,
+              model,
+              prompt: composedPrompt,
+              system: systemPrompt,
+              repoRoot,
+              allowShell,
+              allowDelete,
+              allowNetwork,
+            })
+          : await generateWithOllama({
+              baseUrl: config.ollamaBaseUrl,
+              model,
+              prompt: composedPrompt,
+              system: systemPrompt,
+            })
 
         res.writeHead(200, { "Content-Type": "application/json" })
         res.end(JSON.stringify({ response }))

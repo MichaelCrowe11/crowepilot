@@ -51,6 +51,11 @@ interface CustodianArgs {
   system?: string
   context?: boolean
   daemon?: boolean
+  tools?: boolean
+  allowShell?: boolean
+  allowDelete?: boolean
+  allowNetwork?: boolean
+  allowAllTools?: boolean
   scope?: ConfigScope
   key?: string
   value?: string
@@ -126,6 +131,31 @@ export const custodianCommand: CommandModule = {
       .option("daemon", {
         type: "boolean",
         description: "Run in daemon mode",
+        default: false,
+      })
+      .option("tools", {
+        type: "boolean",
+        description: "Enable XML tool runner for the custodian",
+        default: false,
+      })
+      .option("allow-shell", {
+        type: "boolean",
+        description: "Allow shell tool execution when tool runner is enabled",
+        default: false,
+      })
+      .option("allow-delete", {
+        type: "boolean",
+        description: "Allow delete_path tool execution when tool runner is enabled",
+        default: false,
+      })
+      .option("allow-network", {
+        type: "boolean",
+        description: "Allow network tools (http_get) when tool runner is enabled",
+        default: false,
+      })
+      .option("allow-all-tools", {
+        type: "boolean",
+        description: "Enable all tool permissions (shell, delete, network)",
         default: false,
       })
       .option("scope", {
@@ -233,6 +263,11 @@ export const custodianCommand: CommandModule = {
         const model = args.model ?? config.model
         const systemPrompt = args.system ?? config.systemPrompt
         const includeContext = args.context ?? true
+        const useTools = args.tools ?? false
+        const allowAllTools = args.allowAllTools ?? false
+        const allowShell = allowAllTools || (args.allowShell ?? false)
+        const allowDelete = allowAllTools || (args.allowDelete ?? false)
+        const allowNetwork = allowAllTools || (args.allowNetwork ?? false)
 
         try {
           let response: string
@@ -245,6 +280,10 @@ export const custodianCommand: CommandModule = {
               model,
               systemPrompt,
               includeContext,
+              useTools,
+              allowShell,
+              allowDelete,
+              allowNetwork,
             })
           } else {
             response = await runCustodianRequest({
@@ -253,6 +292,10 @@ export const custodianCommand: CommandModule = {
               model,
               systemPrompt,
               includeContext,
+              useTools,
+              allowShell,
+              allowDelete,
+              allowNetwork,
             })
           }
 
@@ -272,6 +315,11 @@ export const custodianCommand: CommandModule = {
         const model = args.model ?? config.model
         const systemPrompt = args.system ?? config.systemPrompt
         const includeContext = args.context ?? true
+        const useTools = args.tools ?? false
+        const allowAllTools = args.allowAllTools ?? false
+        const allowShell = allowAllTools || (args.allowShell ?? false)
+        const allowDelete = allowAllTools || (args.allowDelete ?? false)
+        const allowNetwork = allowAllTools || (args.allowNetwork ?? false)
 
         const { server } = await startCustodianServer({
           repoRoot: repoRoot || config.repoRoot,
@@ -279,6 +327,10 @@ export const custodianCommand: CommandModule = {
           model,
           systemPrompt,
           includeContext,
+          useTools,
+          allowShell,
+          allowDelete,
+          allowNetwork,
         })
 
         if (args.daemon) {

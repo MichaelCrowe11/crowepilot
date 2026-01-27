@@ -24,6 +24,21 @@ The custodian is a local service that can review architecture, propose optimizat
 ./bin/crowepilot.js custodian run "Audit this repo and propose optimizations"
 ```
 
+### One-off run with tools (optional)
+
+```bash
+./bin/crowepilot.js custodian run --tools "Find TODOs and summarize the files"
+./bin/crowepilot.js custodian run --tools --allow-shell "Run the test suite"
+./bin/crowepilot.js custodian run --tools --allow-all-tools "Audit and refactor with full tool access"
+```
+
+Tool permissions:
+
+- `--allow-shell`: enable shell command execution
+- `--allow-delete`: enable file deletion tool
+- `--allow-network`: enable HTTP fetch tool
+- `--allow-all-tools`: enable all of the above
+
 ### Start a foreground service
 
 ```bash

@@ -3,6 +3,7 @@ import path from "path"
 import { loadCustodianConfig } from "./config"
 import { generateWithOllama } from "./ollama"
 import { buildRepoContext } from "./context"
+import { runWithTools } from "./tool-runner"
 
 interface ClientRunOptions {
   prompt?: string
@@ -10,6 +11,10 @@ interface ClientRunOptions {
   model?: string
   systemPrompt?: string
   includeContext?: boolean
+  useTools?: boolean
+  allowShell?: boolean
+  allowDelete?: boolean
+  allowNetwork?: boolean
 }
 
 interface EnsureOptions {
@@ -49,6 +54,10 @@ export async function runCustodianRequest(options: ClientRunOptions) {
   const model = options.model || config.model
   const systemPrompt = options.systemPrompt || config.systemPrompt
   const includeContext = options.includeContext ?? true
+  const useTools = options.useTools ?? false
+  const allowShell = options.allowShell ?? false
+  const allowDelete = options.allowDelete ?? false
+  const allowNetwork = options.allowNetwork ?? false
 
   const context = includeContext
     ? await buildRepoContext(repoRoot, {
@@ -59,6 +68,19 @@ export async function runCustodianRequest(options: ClientRunOptions) {
 
   const prompt = options.prompt?.trim() || "Provide an architectural review and optimization plan."
   const composedPrompt = context ? `Context:\n${context}\n\nRequest:\n${prompt}` : prompt
+
+  if (useTools) {
+    return runWithTools({
+      baseUrl: config.ollamaBaseUrl,
+      model,
+      prompt: composedPrompt,
+      system: systemPrompt,
+      repoRoot,
+      allowShell,
+      allowDelete,
+      allowNetwork,
+    })
+  }
 
   return generateWithOllama({
     baseUrl: config.ollamaBaseUrl,
@@ -75,6 +97,10 @@ export async function runCustodianRemote(options: ClientRunOptions & { port: num
     model: options.model,
     systemPrompt: options.systemPrompt,
     includeContext: options.includeContext,
+    useTools: options.useTools,
+    allowShell: options.allowShell,
+    allowDelete: options.allowDelete,
+    allowNetwork: options.allowNetwork,
   }
 
   const data = await fetchJson(
