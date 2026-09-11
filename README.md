@@ -4,7 +4,7 @@ A command line wrapper around opencode that adds a local service, called the cus
 
 ## Status
 
-`working`. Typecheck, lint, format check, build, and the smoke test all pass on 2026-09-10, and one custodian run against a local Ollama model returned a reply. What does not work: the npm package `crowepilot` is not published (the registry returns 404), so `npm install crowepilot` fails. Install from a clone. Last code change 2026-01-26; Dependabot updates were merged through 2026-03-26.
+`working`. Typecheck, lint, format check, build, and the smoke test all pass on 2026-09-10, and one custodian run against a local Ollama model returned a reply. What does not work: the npm package `crowepilot` is not published (the registry returns 404), so `npm install crowepilot` fails. Install from a clone. Last commit 2026-01-26. One Dependabot pull request (a rollup bump) has been open since 2026-03-01 and its CI run failed.
 
 ## Install and first run
 
